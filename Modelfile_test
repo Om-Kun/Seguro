@@ -1,0 +1,2 @@
+FROM llama3.1
+ADAPTER "D:/All MIrcroproject/Capstone - Jambhavant/models/adapters/os-agent-v1/adapter_model.safetensors"
