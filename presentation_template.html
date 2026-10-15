@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguro Executive Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #07090E;
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            --bg-surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(99, 102, 241, 0.4);
+            --primary: #6366F1;
+            --secondary: #A855F7;
+            --accent: #EC4899;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --gradient-accent: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+            --gradient-blue: linear-gradient(135deg, #38BDF8 0%, #6366F1 100%);
+            --glow: 0 0 50px -10px rgba(99, 102, 241, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 24px;
+            left: 48px;
+            right: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--border-highlight);
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #C7D2FE;
+            box-shadow: var(--glow);
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22C55E;
+            box-shadow: 0 0 10px #22C55E;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .slide-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        /* Presentation Container */
+        .deck-container {
+            width: 88vw;
+            max-width: 1400px;
+            height: 78vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Slide Styles */
+        .hero-tag {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        h1.slide-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -1.5px;
+            max-width: 950px;
+        }
+
+        h1.slide-title span {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-muted);
+            max-width: 750px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .meta-footer {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .meta-pill {
+            padding: 10px 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .meta-pill strong {
+            color: var(--text-main);
+        }
+
+        /* Grid Layouts for Content Slides */
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-accent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-surface-hover);
+            border-color: var(--border-highlight);
+            box-shadow: var(--glow);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #FFFFFF;
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .metric-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border-highlight);
+            box-shadow: var(--glow);
+            transform: translateY(-4px);
+        }
+
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Bottom Navigation & Controls */
+        .bottom-bar {
+            position: fixed;
+            bottom: 28px;
+            left: 48px;
+            right: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            max-width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 20%;
+            background: var(--gradient-accent);
+            transition: width 0.4s ease;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-surface-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .shortcut-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="brand-badge">
+            <span class="brand-dot"></span>
+            SEGURO V-PRIME &bull; EXECUTIVE INTELLIGENCE
+        </div>
+        <div class="slide-counter" id="slideIndicator">01 / 05</div>
+    </div>
+
+    <div class="deck-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active" id="slide-0">
+            <span class="hero-tag">Autonomous OS Intelligence</span>
+            <h1 class="slide-title"><span>{TOPIC}</span></h1>
+            <p class="slide-subtitle">{SUBTITLE}</p>
+            <div class="meta-footer">
+                <div class="meta-pill">Engine: <strong>Seguro V-Prime (11k LoRA)</strong></div>
+                <div class="meta-pill">Lead: <strong>Om Salunke & Team</strong></div>
+                <div class="meta-pill">College: <strong>Govt Polytechnic Pune</strong></div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Challenges -->
+        <div class="slide" id="slide-1">
+            <div class="section-header">
+                <span class="hero-tag">Current Landscape</span>
+                <h2>Operational Challenges</h2>
+                <p>Critical bottlenecks addressed by autonomous agent architectures.</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <div class="card-number">01</div>
+                        <h3>Human Cognitive Latency</h3>
+                        <p>Repetitive cross-application workflows create operational friction, context switching, and high overhead across enterprise systems.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">02</div>
+                        <h3>Brittle Traditional RPA</h3>
+                        <p>Heuristic scripts and hardcoded selectors fail whenever UI elements shift, update, or resize across dynamic operating environments.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">03</div>
+                        <h3>Cloud Privacy & Latency</h3>
+                        <p>Sending sensitive desktop screens to cloud APIs violates enterprise security compliance and introduces multi-second network lag.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Solution Architecture -->
+        <div class="slide" id="slide-2">
+            <div class="section-header">
+                <span class="hero-tag">System Architecture</span>
+                <h2>Dual-System Cognitive Routing</h2>
+                <p>High-speed muscle memory paired with deep multimodal visual reasoning.</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <div class="card-number">PILLAR 1</div>
+                        <h3>System 1: Fast Paths</h3>
+                        <p>Sub-millisecond macro execution and semantic memory retrieval for high-frequency workflows without invoking heavy vision models.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">PILLAR 2</div>
+                        <h3>System 2: Visual Cognition</h3>
+                        <p>Hybrid perception combining EasyOCR and OpenCV Canny contour detection with local Qwen2-VL-7B for zero-shot screen reasoning.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">PILLAR 3</div>
+                        <h3>11,000 Workflow LoRA</h3>
+                        <p>Specialized adapter fine-tuned via Unsloth QLoRA on 11k OS trajectories, yielding deterministic structured JSON action plans.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Empirical Metrics -->
+        <div class="slide" id="slide-3">
+            <div class="section-header">
+                <span class="hero-tag">Benchmark Performance</span>
+                <h2>Empirical Metrics & Speed</h2>
+                <p>Measured performance executing live on local consumer hardware (RTX 3060 12GB).</p>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">11,000</div>
+                    <div class="metric-label">Trained Workflows</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">&lt; 0.4s</div>
+                    <div class="metric-label">Semantic Memory Recall</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.164</div>
+                    <div class="metric-label">Final Eval Loss</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Local & Offline</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Strategic Conclusion -->
+        <div class="slide" id="slide-4">
+            <div class="section-header">
+                <span class="hero-tag">Executive Summary</span>
+                <h2>Impact & Future Horizon</h2>
+                <p>Next-generation autonomous computing built for real-world reliability.</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div>
+                        <div class="card-number">IMPACT 01</div>
+                        <h3>Autonomous OS Agency</h3>
+                        <p>End-to-end desktop automation enabling users to control apps, write scripts, build documents, and navigate browsers via spoken intent.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">IMPACT 02</div>
+                        <h3>Self-Learning Memory</h3>
+                        <p>Continuous on-device knowledge retention that learns user preferences and facts dynamically without fine-tuning restarts.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-number">IMPACT 03</div>
+                        <h3>Zero Cloud Footprint</h3>
+                        <p>Full enterprise data sovereignty. Everything runs locally on consumer RTX GPUs with zero external API fees or telemetry.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-bar">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="nav-controls">
+            <button class="nav-btn" onclick="prevSlide()">
+                &larr; Prev <span class="shortcut-hint">&larr;</span>
+            </button>
+            <button class="nav-btn" onclick="nextSlide()">
+                Next &rarr; <span class="shortcut-hint">&rarr;</span>
+            </button>
+            <button class="nav-btn" onclick="toggleFullscreen()">
+                Fullscreen <span class="shortcut-hint">F</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 5;
+
+        function updateSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+            
+            document.querySelectorAll('.slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            currentSlide = index;
+            document.getElementById('slideIndicator').innerText = `0${currentSlide + 1} / 0${totalSlides}`;
+            document.getElementById('progressBar').style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                updateSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                updateSlide(currentSlide - 1);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
