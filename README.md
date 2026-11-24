@@ -74,15 +74,3 @@ python run_seguro.py --task "Open Google Sheets"
 ```
 
 ---
-
-## Capstone Project Credits
-
-- **Institute**: Government Polytechnic, Pune
-- **Department**: Computer Engineering
-- **Project Team**:
-  - Samarth Pawar (2406151)
-  - Parth Paygude (2406155)
-  - Tejas Pharate (2406158)
-  - Om Salunke (2406176)
-- **Mentor**: Smt. V. S. Pawar
-- **Head of Department**: Smt. J. R. Hange
