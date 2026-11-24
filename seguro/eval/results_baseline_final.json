@@ -1,0 +1,334 @@
+[
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "Verified: window 'Calculator' is open and visible.",
+    "error": null,
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:34"
+  },
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "Verified: window 'Calculator' is open and visible.",
+    "error": null,
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:36"
+  },
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "Verified: window 'Calculator' is open and visible.",
+    "error": null,
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:37"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\seguro_notepad_test.txt' (size: 19 bytes).",
+    "error": null,
+    "elapsed_s": 2.51,
+    "steps": 2,
+    "rungs": [
+      "type_text",
+      "files_write"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:40"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'Untitled - Notepad' is open and visible.",
+    "error": "Assertion failed: file missing",
+    "elapsed_s": 2.62,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:42"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\seguro_notepad_test.txt' (size: 19 bytes).",
+    "error": null,
+    "elapsed_s": 2.34,
+    "steps": 3,
+    "rungs": [
+      "type_text",
+      "hotkey",
+      "files_write"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:45"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "C:\\\\Users\\\\omsal\\\\Desktop\\\\core_sales.xlsx",
+    "error": null,
+    "elapsed_s": 2.95,
+    "steps": 3,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "windows_focus",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:48"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "Verified: window 'Claude' is open and visible.",
+    "error": null,
+    "elapsed_s": 4.01,
+    "steps": 5,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "windows_focus",
+      "windows_focus",
+      "windows_focus",
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:52"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "C:\\Users\\omsal\\Desktop\\core_sales.xlsx",
+    "error": null,
+    "elapsed_s": 2.4,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:54"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Script executed cleanly (returncode: 0, output length: 0 chars).",
+    "error": "Assertion failed: AppsUseLightTheme is 1, expected 0",
+    "elapsed_s": 3.38,
+    "steps": 1,
+    "rungs": [
+      "run_powershell"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:11:58"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Script executed cleanly (returncode: 0, output length: 0 chars).",
+    "error": "Assertion failed: AppsUseLightTheme is 1, expected 0",
+    "elapsed_s": 3.09,
+    "steps": 1,
+    "rungs": [
+      "run_powershell"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:12:01"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Script executed cleanly (returncode: 0, output length: 0 chars).",
+    "error": "Assertion failed: AppsUseLightTheme is 1, expected 0",
+    "elapsed_s": 2.9,
+    "steps": 1,
+    "rungs": [
+      "run_powershell"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:12:04"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Action 'files_find' executed with result status: ok",
+    "error": "Assertion failed: large/ missing",
+    "elapsed_s": 8.79,
+    "steps": 5,
+    "rungs": [
+      "files_find",
+      "files_move",
+      "files_move",
+      "files_move",
+      "files_find"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:12:18"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Action 'files_find' executed with result status: ok",
+    "error": "Assertion failed: large/ missing",
+    "elapsed_s": 11.95,
+    "steps": 9,
+    "rungs": [
+      "files_find",
+      "files_find",
+      "files_find",
+      "files_find",
+      "files_move",
+      "files_move",
+      "files_move",
+      "files_move",
+      "files_find"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:12:30"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Action 'files_find' executed with result status: ok",
+    "error": "Assertion failed: large/ missing",
+    "elapsed_s": 5.69,
+    "steps": 5,
+    "rungs": [
+      "files_find",
+      "files_find",
+      "files_find",
+      "files_move",
+      "files_find"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:12:36"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 777327': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:27"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 859000': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.5,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:30"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 863047': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.5,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:32"
+  }
+]

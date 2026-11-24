@@ -1,0 +1,39 @@
+[
+  {
+    "id": "hard_16_markdown_to_doc_and_deck",
+    "category": "workflow_hard",
+    "prompt": "Turn notes.md in ~/Desktop/seguro_wf_eval/h16 into a Word document notes.docx with one section per heading, and into a PowerPoint notes_deck.pptx in the same folder with one slide per heading (heading as the slide title, its text on the slide).",
+    "status": "PASS",
+    "agent_status": "failed",
+    "evidence": "1/2 steps verified (markdown_to_powerpoint). failed: markdown_to_word: Checks failed after 2 attempt(s):.",
+    "error": null,
+    "elapsed_s": 38.1,
+    "steps": 8,
+    "rungs": [
+      "word_create_document",
+      "skill_markdown_doc_deck",
+      "node_output",
+      "skill_markdown_doc_deck",
+      "node_output",
+      "skill_markdown_doc_deck",
+      "files_list",
+      "skill_markdown_doc_deck"
+    ],
+    "workflow_id": "wf_20261016_073740_d242",
+    "resumed_from": null,
+    "plan_source": "planner",
+    "plan_fallback": false,
+    "nodes": 2,
+    "nodes_verified": 1,
+    "replans": 0,
+    "escalated_nodes": 1,
+    "node_times_s": {
+      "markdown_to_powerpoint": 13.3,
+      "markdown_to_word": 19.9
+    },
+    "confirmations": 0,
+    "run": 1,
+    "mode": "hybrid",
+    "timestamp": "2026-10-16 07:38:07"
+  }
+]

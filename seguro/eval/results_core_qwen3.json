@@ -1,0 +1,116 @@
+[
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Created 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' with columns Month and Sales for Jan, Feb, Mar, Apr and a bar chart. [verifier: Last action 'excel_create_table_and_chart' verified: Verified 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' (6564 bytes, valid OOXML, 4 data rows, 1 chart(s)).]",
+    "error": null,
+    "elapsed_s": 3.36,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:45"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Created 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' with 4 data rows and a bar chart. [verifier: Last action 'excel_create_table_and_chart' verified: Verified 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' (6565 bytes, valid OOXML, 4 data rows, 1 chart(s)).]",
+    "error": null,
+    "elapsed_s": 4.42,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:49"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "FAIL",
+    "agent_status": "failed",
+    "check_is_self_report": false,
+    "evidence": "Tool 'skill_theme' failed: Blocked by safety gate: Not approved by user: Change a Windows setting (skill_theme {'request': 'Turn on dark mode for Windows apps'})",
+    "error": "Assertion failed: AppsUseLightTheme is 1, expected 0",
+    "elapsed_s": 0.0,
+    "steps": 1,
+    "rungs": [
+      "skill_theme"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:49"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "FAIL",
+    "agent_status": "failed",
+    "check_is_self_report": false,
+    "evidence": "Tool 'skill_theme' failed: Blocked by safety gate: Not approved by user: Change a Windows setting (skill_theme {'request': 'Turn on dark mode for Windows apps'})",
+    "error": "Assertion failed: AppsUseLightTheme is 1, expected 0",
+    "elapsed_s": 0.0,
+    "steps": 1,
+    "rungs": [
+      "skill_theme"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:49"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Moved files larger than 100 KB into the 'large' subfolder inside 'seguro_size_test' on the Desktop. [verifier: Last action 'files_move' verified: Verified 2 file(s) now at destination: C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_a.bin, C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_b.dat]",
+    "error": null,
+    "elapsed_s": 3.67,
+    "steps": 3,
+    "rungs": [
+      "files_list",
+      "files_move",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:53"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Moved files larger than 100 KB into the 'large' subfolder inside 'seguro_size_test' on the Desktop. [verifier: Last action 'files_move' verified: Verified 2 file(s) now at destination: C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_a.bin, C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_b.dat]",
+    "error": null,
+    "elapsed_s": 3.52,
+    "steps": 3,
+    "rungs": [
+      "files_list",
+      "files_move",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:10:56"
+  }
+]

@@ -1,0 +1,331 @@
+[
+  {
+    "id": "app_launch_01_notepad",
+    "category": "app_launch",
+    "prompt": "Open Notepad",
+    "status": "PASS",
+    "evidence": "Verified: window 'Untitled - Notepad' is open and visible.",
+    "error": null,
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_02_calc",
+    "category": "app_launch",
+    "prompt": "Launch Calculator",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'calculator'. Process dispatched.",
+    "error": "(258, 'EnumWindows', 'The wait operation timed out.')",
+    "elapsed_s": 2.02,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_03_paint",
+    "category": "app_launch",
+    "prompt": "Open Paint",
+    "status": "PASS",
+    "evidence": "Verified: window 'Untitled - Paint' is open and visible.",
+    "error": null,
+    "elapsed_s": 1.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_04_terminal",
+    "category": "app_launch",
+    "prompt": "Open Terminal",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'terminal'. Process dispatched.",
+    "error": "(258, 'EnumWindows', 'The wait operation timed out.')",
+    "elapsed_s": 2.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_05_taskmgr",
+    "category": "app_launch",
+    "prompt": "Open Task Manager",
+    "status": "PASS",
+    "evidence": "Verified: window 'Task Manager' is open and visible.",
+    "error": null,
+    "elapsed_s": 1.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_06_brave",
+    "category": "app_launch",
+    "prompt": "Launch Brave",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'brave'. Process dispatched.",
+    "error": "Assertion failed: wins = [w['title'].lower() for w in windows_list()]; assert any('brave' in t for t in wins)",
+    "elapsed_s": 2.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_07_cmd",
+    "category": "app_launch",
+    "prompt": "Open cmd",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'cmd'. Process dispatched.",
+    "error": "Assertion failed: time.sleep(0.5); wins = [w['title'].lower() for w in windows_list()]; assert any('command prompt' in t or 'cmd' in t for t in wins)",
+    "elapsed_s": 2.02,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_08_explorer",
+    "category": "app_launch",
+    "prompt": "Open File Explorer",
+    "status": "PASS",
+    "evidence": "Verified: window 'File Explorer' is open and visible.",
+    "error": null,
+    "elapsed_s": 1.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_09_settings",
+    "category": "app_launch",
+    "prompt": "Open Settings",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'settings'. Process dispatched.",
+    "error": "Assertion failed: time.sleep(1.0); wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)",
+    "elapsed_s": 2.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "app_launch_10_snipping",
+    "category": "app_launch",
+    "prompt": "Open Snipping Tool",
+    "status": "FAIL",
+    "evidence": "App launch signaled for 'snipping tool'. Process dispatched.",
+    "error": "Assertion failed: time.sleep(1.0); wins = [w['title'].lower() for w in windows_list()]; assert any('snipping' in t for t in wins)",
+    "elapsed_s": 2.01,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ]
+  },
+  {
+    "id": "file_ops_01_create_text",
+    "category": "file_ops",
+    "prompt": "Create a file named eval_test_1.txt on Desktop with content 'Empirical test 1'",
+    "status": "PASS",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\eval_test_1.txt' (size: 16 bytes).",
+    "error": null,
+    "elapsed_s": 2.45,
+    "steps": 1,
+    "rungs": [
+      "files_write"
+    ]
+  },
+  {
+    "id": "file_ops_02_read_json",
+    "category": "file_ops",
+    "prompt": "Write a JSON file eval_config.json on Desktop with key status equal to verified",
+    "status": "PASS",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\eval_config.json' (size: 22 bytes).",
+    "error": null,
+    "elapsed_s": 2.36,
+    "steps": 1,
+    "rungs": [
+      "files_write"
+    ]
+  },
+  {
+    "id": "file_ops_03_create_csv",
+    "category": "file_ops",
+    "prompt": "Create a CSV file eval_data.csv on Desktop with header Name,Score and rows Alice,95 and Bob,88",
+    "status": "PASS",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\eval_data.csv' (size: 28 bytes).",
+    "error": null,
+    "elapsed_s": 0.0,
+    "steps": 1,
+    "rungs": [
+      "files_write"
+    ]
+  },
+  {
+    "id": "file_ops_04_count_lines",
+    "category": "file_ops",
+    "prompt": "Count lines of eval_sample.txt on Desktop using powershell",
+    "status": "PASS",
+    "evidence": "Script executed cleanly (returncode: 0, output length: 0 chars).",
+    "error": null,
+    "elapsed_s": 2.56,
+    "steps": 1,
+    "rungs": [
+      "run_powershell"
+    ]
+  },
+  {
+    "id": "file_ops_05_mkdir",
+    "category": "file_ops",
+    "prompt": "Create a directory SeguroArchive on Desktop",
+    "status": "PASS",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\SeguroArchive' (size: 0 bytes).",
+    "error": null,
+    "elapsed_s": 0.0,
+    "steps": 1,
+    "rungs": [
+      "files_mkdir"
+    ]
+  },
+  {
+    "id": "file_ops_06_sha256",
+    "category": "file_ops",
+    "prompt": "Calculate SHA256 of file eval_hash.txt on Desktop using powershell Get-FileHash",
+    "status": "PASS",
+    "evidence": "Script executed cleanly (returncode: 0, output length: 0 chars).",
+    "error": null,
+    "elapsed_s": 3.4,
+    "steps": 1,
+    "rungs": [
+      "run_powershell"
+    ]
+  },
+  {
+    "id": "file_ops_07_move_file",
+    "category": "file_ops",
+    "prompt": "Move eval_source.txt from Desktop to eval_dest.txt on Desktop",
+    "status": "PASS",
+    "evidence": "Destination verified: 'C:\\Users\\omsal\\Desktop\\eval_dest.txt' exists.",
+    "error": null,
+    "elapsed_s": 2.34,
+    "steps": 1,
+    "rungs": [
+      "files_move"
+    ]
+  },
+  {
+    "id": "file_ops_08_append_log",
+    "category": "file_ops",
+    "prompt": "Append timestamp entry to audit_test.log on Desktop",
+    "status": "PASS",
+    "evidence": "File verified on disk: 'C:\\Users\\omsal\\Desktop\\audit_test.log' (size: 36 bytes).",
+    "error": null,
+    "elapsed_s": 2.33,
+    "steps": 1,
+    "rungs": [
+      "files_write"
+    ]
+  },
+  {
+    "id": "office_01_excel_states",
+    "category": "office",
+    "prompt": "Create an Excel sheet on Desktop named states_eval.xlsx with columns State, Population and 4 states",
+    "status": "PASS",
+    "evidence": "The Excel sheet \"states_eval.xlsx\" has been created on the Desktop with the specified columns and rows.",
+    "error": null,
+    "elapsed_s": 3.23,
+    "steps": 1,
+    "rungs": [
+      "excel_create_table_and_chart"
+    ]
+  },
+  {
+    "id": "office_02_excel_sales",
+    "category": "office",
+    "prompt": "Create an Excel file q1_sales.xlsx on Desktop with Quarter, Revenue, Cost and embedded chart",
+    "status": "PASS",
+    "evidence": "I was unable to create the Excel file as expected. The tool call response indicates that the file was not created. I will call task_failed with the honest reason.\n\ntask_failed(\"Failed to create Excel file q1_sales.xlsx on Desktop: unable to create file\")",
+    "error": null,
+    "elapsed_s": 4.03,
+    "steps": 1,
+    "rungs": [
+      "excel_create_table_and_chart"
+    ]
+  },
+  {
+    "id": "office_03_word_brief",
+    "category": "office",
+    "prompt": "Create a Word document project_brief.docx on Desktop with title Seguro Architecture Overview",
+    "status": "PASS",
+    "evidence": "The document was created successfully. The path to the document is C:\\\\Users\\\\omsal\\\\Desktop\\\\project_brief.docx.",
+    "error": null,
+    "elapsed_s": 22.73,
+    "steps": 1,
+    "rungs": [
+      "word_create_document"
+    ]
+  },
+  {
+    "id": "office_04_excel_crypto",
+    "category": "office",
+    "prompt": "Create an Excel sheet crypto_prices.xlsx with Token, Price_USD, MarketCap on Desktop",
+    "status": "PASS",
+    "evidence": "Excel sheet crypto_prices.xlsx created on Desktop",
+    "error": null,
+    "elapsed_s": 5.82,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ]
+  },
+  {
+    "id": "office_05_word_minutes",
+    "category": "office",
+    "prompt": "Generate Word document meeting_minutes.docx on Desktop with heading Capstone Review",
+    "status": "PASS",
+    "evidence": "The document was created, but I need to verify the result. Let me check the file path and size.\n\n{\"name\": \"file_exists\", \"parameters\": {\"path\": \"C:\\\\Users\\\\omsal\\\\Desktop\\\\meeting_minutes.docx\"}}",
+    "error": null,
+    "elapsed_s": 2.35,
+    "steps": 1,
+    "rungs": [
+      "word_create_document"
+    ]
+  },
+  {
+    "id": "office_06_excel_inventory",
+    "category": "office",
+    "prompt": "Create an Excel sheet inventory.xlsx with ItemID, ItemName, Quantity, UnitPrice on Desktop",
+    "status": "PASS",
+    "evidence": "C:\\Users\\omsal\\Desktop\\inventory.xlsx",
+    "error": null,
+    "elapsed_s": 10.02,
+    "steps": 3,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "excel_create_table_and_chart",
+      "task_complete"
+    ]
+  },
+  {
+    "id": "office_07_word_nda",
+    "category": "office",
+    "prompt": "Create a Word document nda_template.docx on Desktop with standard confidentiality terms",
+    "status": "PASS",
+    "evidence": "The task is finished.",
+    "error": null,
+    "elapsed_s": 5.78,
+    "steps": 2,
+    "rungs": [
+      "word_create_document",
+      "task_complete"
+    ]
+  }
+]

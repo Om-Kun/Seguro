@@ -1,0 +1,53 @@
+[
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 777327': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.51,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:27"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 859000': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.5,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:30"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "Verified: window 'the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave' is open and visible.",
+    "error": "Assertion failed: no Brave window showing 'Probe 863047': [\"the web for 'python asyncio tutorial' in Brave and tell me the exact title of the browser window that opened - Brave Search - Brave\"]",
+    "elapsed_s": 0.5,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-15 23:13:32"
+  }
+]

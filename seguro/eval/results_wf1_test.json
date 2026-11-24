@@ -1,0 +1,50 @@
+[
+  {
+    "id": "wf_01_news_report_gmail",
+    "category": "workflow",
+    "prompt": "Find the 5 latest AI news articles. Put their title, source and summary in an Excel file ai_news.xlsx in the folder ~/Desktop/seguro_wf_eval/w1, make a bar chart image of articles per source, write a Word report ai_news_report.docx in the same folder with the article titles and the chart, then create a Gmail draft to seguro-eval@example.com with the subject '[Seguro eval] AI news 68931' and the Word report attached. Do not send it.",
+    "status": "PASS",
+    "agent_status": "success",
+    "evidence": "5/5 steps verified (news_search, make_sheet, chart_png, write_doc, gmail_create_draft).",
+    "error": null,
+    "elapsed_s": 127.77,
+    "steps": 16,
+    "rungs": [
+      "news_search",
+      "node_output",
+      "node_output",
+      "news_search",
+      "node_output",
+      "excel_create_table_and_chart",
+      "node_output",
+      "node_output",
+      "chart_png",
+      "node_output",
+      "word_create_document",
+      "node_output",
+      "word_create_document",
+      "auto_output",
+      "gmail_create_draft",
+      "node_output"
+    ],
+    "workflow_id": "wf_20261016_074755_5399",
+    "resumed_from": null,
+    "plan_source": "planner",
+    "plan_fallback": false,
+    "nodes": 5,
+    "nodes_verified": 5,
+    "replans": 0,
+    "escalated_nodes": 1,
+    "node_times_s": {
+      "news_search": 51.4,
+      "make_sheet": 10.1,
+      "chart_png": 6.6,
+      "write_doc": 16.2,
+      "gmail_create_draft": 22.6
+    },
+    "confirmations": 0,
+    "run": 1,
+    "mode": "hybrid",
+    "timestamp": "2026-10-16 07:49:49"
+  }
+]

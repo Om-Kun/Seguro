@@ -1,0 +1,3 @@
+FROM qwen3:8b
+# 40k default context spills to CPU on a 12 GB GPU; 16k keeps it on the GPU.
+PARAMETER num_ctx 16384

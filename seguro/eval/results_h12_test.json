@@ -1,0 +1,35 @@
+[
+  {
+    "id": "hard_12_clean_csv",
+    "category": "workflow_hard",
+    "prompt": "Clean customers_raw.csv in ~/Desktop/seguro_wf_eval/h12: trim spaces in names and cities, write city names in Title Case, remove exact duplicate rows and rows with a missing city, and save the result as customers_clean.csv in that folder.",
+    "status": "FAIL",
+    "agent_status": "success",
+    "evidence": "2/2 steps verified (clean_csv, save_cleaned_csv).",
+    "error": "KeyError: 'name'",
+    "elapsed_s": 24.41,
+    "steps": 4,
+    "rungs": [
+      "skill_clean_csv",
+      "node_output",
+      "files_write",
+      "node_output"
+    ],
+    "workflow_id": "wf_20261016_073826_16e5",
+    "resumed_from": null,
+    "plan_source": "planner",
+    "plan_fallback": false,
+    "nodes": 2,
+    "nodes_verified": 2,
+    "replans": 0,
+    "escalated_nodes": 0,
+    "node_times_s": {
+      "clean_csv": 10.2,
+      "save_cleaned_csv": 5.8
+    },
+    "confirmations": 0,
+    "run": 1,
+    "mode": "hybrid",
+    "timestamp": "2026-10-16 07:38:42"
+  }
+]

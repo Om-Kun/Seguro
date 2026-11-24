@@ -1,0 +1,372 @@
+[
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Verified: window 'Calculator' is open.",
+    "error": null,
+    "elapsed_s": 0.41,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:29"
+  },
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Verified: window 'Calculator' is open.",
+    "error": null,
+    "elapsed_s": 0.41,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:30"
+  },
+  {
+    "id": "core_01_calculator",
+    "category": "core",
+    "prompt": "Open calculator",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Verified: window 'Calculator' is open.",
+    "error": null,
+    "elapsed_s": 0.41,
+    "steps": 1,
+    "rungs": [
+      "apps_launch"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:31"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The file 'seguro_notepad_test.txt' has been saved on the Desktop with the text 'Seguro audit line 1'. [verifier: Last action 'files_write' verified: File verified on disk: 'C:\\Users\\omsal\\Desktop\\seguro_notepad_test.txt' (size: 19 bytes).]",
+    "error": null,
+    "elapsed_s": 2.45,
+    "steps": 3,
+    "rungs": [
+      "type_text",
+      "files_write",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:34"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The file 'seguro_notepad_test.txt' has been saved on the Desktop with the text 'Seguro audit line 1'. [verifier: Last action 'files_write' verified: File verified on disk: 'C:\\Users\\omsal\\Desktop\\seguro_notepad_test.txt' (size: 19 bytes).]",
+    "error": null,
+    "elapsed_s": 2.17,
+    "steps": 3,
+    "rungs": [
+      "type_text",
+      "files_write",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:36"
+  },
+  {
+    "id": "core_02_notepad_save",
+    "category": "core",
+    "prompt": "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The file 'seguro_notepad_test.txt' has been created on the Desktop with the text 'Seguro audit line 1'. [verifier: Last action 'files_write' verified: File verified on disk: 'C:\\Users\\omsal\\Desktop\\seguro_notepad_test.txt' (size: 19 bytes).]",
+    "error": null,
+    "elapsed_s": 2.75,
+    "steps": 4,
+    "rungs": [
+      "type_text",
+      "hotkey",
+      "files_write",
+      "task_complete"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:39"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Your Excel workbook \"core_sales.xlsx\" has been created on the Desktop with the specified columns and data, along with a bar chart of sales. [verifier: Last action 'excel_create_table_and_chart' verified: Verified 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' (6565 bytes, valid OOXML, 4 data rows, 1 chart(s)).]",
+    "error": null,
+    "elapsed_s": 2.54,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:41"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Your Excel workbook \"core_sales.xlsx\" has been created on your Desktop with the specified columns and data, along with a bar chart of sales. [verifier: Last action 'excel_create_table_and_chart' verified: Verified 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' (6565 bytes, valid OOXML, 4 data rows, 1 chart(s)).]",
+    "error": null,
+    "elapsed_s": 2.4,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:44"
+  },
+  {
+    "id": "core_03_excel_chart",
+    "category": "core",
+    "prompt": "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Your Excel workbook \"core_sales.xlsx\" has been created on your Desktop with the specified data and a bar chart. [verifier: Last action 'excel_create_table_and_chart' verified: Verified 'C:\\Users\\omsal\\Desktop\\core_sales.xlsx' (6565 bytes, valid OOXML, 4 data rows, 1 chart(s)).]",
+    "error": null,
+    "elapsed_s": 2.38,
+    "steps": 2,
+    "rungs": [
+      "excel_create_table_and_chart",
+      "task_complete"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:46"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Dark mode has been successfully enabled for Windows apps. [verifier: Last action 'settings_set_theme' verified: Registry confirms dark mode: {'AppsUseLightTheme': 0}]",
+    "error": null,
+    "elapsed_s": 2.28,
+    "steps": 2,
+    "rungs": [
+      "settings_set_theme",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:48"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Dark mode has been successfully enabled for Windows apps. [verifier: Last action 'settings_set_theme' verified: Registry confirms dark mode: {'AppsUseLightTheme': 0}]",
+    "error": null,
+    "elapsed_s": 1.84,
+    "steps": 2,
+    "rungs": [
+      "settings_set_theme",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:50"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Dark mode has been successfully enabled for Windows apps. [verifier: Last action 'settings_set_theme' verified: Registry confirms dark mode: {'AppsUseLightTheme': 0}]",
+    "error": null,
+    "elapsed_s": 1.88,
+    "steps": 2,
+    "rungs": [
+      "settings_set_theme",
+      "task_complete"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:52"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The page title shown in the browser is \"Probe 463496\". [verifier: Last action 'browser_open' verified: Browser window shows page titled: 'Probe 463496']",
+    "error": null,
+    "elapsed_s": 1.63,
+    "steps": 2,
+    "rungs": [
+      "browser_open",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:56"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The page title shown in the browser is \"Probe 149609\". [verifier: Last action 'browser_open' verified: Browser window shows page titled: 'Probe 149609']",
+    "error": null,
+    "elapsed_s": 1.69,
+    "steps": 2,
+    "rungs": [
+      "browser_open",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:48:59"
+  },
+  {
+    "id": "core_05_browser_title",
+    "category": "core",
+    "prompt": "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "The page title shown in the browser is \"Probe 101419\". [verifier: Last action 'browser_open' verified: Browser window shows page titled: 'Probe 101419']",
+    "error": null,
+    "elapsed_s": 1.69,
+    "steps": 2,
+    "rungs": [
+      "browser_open",
+      "task_complete"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:49:03"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Task complete. The files \"big_a.bin\" and \"big_b.dat\" have been moved to the \"large\" subfolder inside \"seguro_size_test\" on the Desktop. [verifier: Last action 'files_move' verified: Verified 2 file(s) now at destination: C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_a.bin, C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_b.dat]",
+    "error": null,
+    "elapsed_s": 3.31,
+    "steps": 4,
+    "rungs": [
+      "files_list",
+      "files_list",
+      "files_move",
+      "task_complete"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:49:06"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Task completed. The files \"big_a.bin\" and \"big_b.dat\" have been moved to the \"large\" subfolder inside \"seguro_size_test\" on the Desktop. [verifier: Last action 'files_move' verified: Verified 2 file(s) now at destination: C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_a.bin, C:\\Users\\omsal\\Desktop\\seguro_size_test\\large\\big_b.dat]",
+    "error": null,
+    "elapsed_s": 3.15,
+    "steps": 4,
+    "rungs": [
+      "files_list",
+      "files_list",
+      "files_move",
+      "task_complete"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:49:10"
+  },
+  {
+    "id": "core_06_move_by_size",
+    "category": "core",
+    "prompt": "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are.",
+    "status": "FAIL",
+    "agent_status": "failed",
+    "check_is_self_report": false,
+    "evidence": "Max step budget (25) reached without verified completion.",
+    "error": "Assertion failed: large/ missing",
+    "elapsed_s": 35.03,
+    "steps": 25,
+    "rungs": [
+      "files_list",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move",
+      "files_list",
+      "files_move"
+    ],
+    "run": 3,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 00:49:45"
+  }
+]

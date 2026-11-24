@@ -1,0 +1,255 @@
+# 14 more hard tasks: vision/webcam, data, files, code, web. Every checker recomputes the answer
+# from the fixtures or inspects the produced files; none trusts the agent's own status.
+# `requires: camera` tasks are SKIPPED (not failed) when no camera is connected.
+tasks:
+  - id: hard_05_photo_objects_report
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, ultralytics
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h5'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      shutil.copy(os.path.join(os.path.dirname(ultralytics.__file__), 'assets', 'bus.jpg'), os.path.join(D, 'street.jpg'))
+    prompt: "Identify the objects in the photo street.jpg in ~/Desktop/seguro_wf_eval/h5, save a table of each object type and how many there are to objects.xlsx in that folder with a bar chart, then write objects_report.docx there describing what was found and embedding the annotated detection image."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h5')
+      rows = xlsx_rows(os.path.join(D, 'objects.xlsx')); got = {str(r[0]).lower(): r[1] for r in rows[1:]}
+      assert str(got.get('person')).split('.')[0] == '3' and str(got.get('bus')).split('.')[0] == '1', f'counts {got}'
+      assert xlsx_charts(os.path.join(D, 'objects.xlsx')) >= 1, 'no chart'
+      t = docx_text(os.path.join(D, 'objects_report.docx')).lower()
+      assert 'bus' in t and 'person' in t, 'report does not mention the objects'
+      assert docx_images(os.path.join(D, 'objects_report.docx')) >= 1, 'no annotated image'
+    timeout_s: 900
+
+  - id: hard_06_portrait_deck
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, ultralytics
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h6'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      shutil.copy(os.path.join(os.path.dirname(ultralytics.__file__), 'assets', 'zidane.jpg'), os.path.join(D, 'guest.jpg'))
+    prompt: "Make a pencil-sketch portrait of the person in guest.jpg in ~/Desktop/seguro_wf_eval/h6, then create portrait_deck.pptx in that folder with 2 slides: the first showing the original photo, the second showing the sketch portrait."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h6')
+      slides, pics = pptx_info(os.path.join(D, 'portrait_deck.pptx'))
+      assert slides == 2 and pics >= 2, f'slides={slides} pictures={pics}'
+    timeout_s: 900
+
+  - id: hard_07_paint_portrait
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, ultralytics, time
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h7'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      shutil.copy(os.path.join(os.path.dirname(ultralytics.__file__), 'assets', 'zidane.jpg'), os.path.join(D, 'sitter.jpg'))
+      T0 = time.time()
+    prompt: "Draw a portrait of the person in sitter.jpg (in ~/Desktop/seguro_wf_eval/h7) by hand in Microsoft Paint, then copy the finished drawing into that folder as paint_portrait.png."
+    check: |
+      import numpy as np
+      from PIL import Image
+      p = os.path.join(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h7'), 'paint_portrait.png')
+      a = np.array(Image.open(p).convert('L'))
+      ink = float((a < 100).mean())
+      assert 0.003 < ink < 0.35, f'drawing has {ink:.4f} dark-pixel ratio (blank or not a line drawing)'
+      assert any(e['type'] == 'tool_call' and e['data'].get('tool') == 'portrait_paint_in_paint' and e['data'].get('verified') for e in events), 'Paint drawing tool was not used'
+    cleanup: "import subprocess; subprocess.run(['taskkill', '/IM', 'mspaint.exe', '/F'], capture_output=True)"
+    timeout_s: 900
+
+  - id: hard_08_scene_description
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, ultralytics
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h8'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      shutil.copy(os.path.join(os.path.dirname(ultralytics.__file__), 'assets', 'bus.jpg'), os.path.join(D, 'scene.jpg'))
+    prompt: "Look at the photo scene.jpg in ~/Desktop/seguro_wf_eval/h8 with the vision model, describe the scene in detail (vehicles, people, setting), and save the description as scene_report.docx in that folder with the photo embedded."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h8')
+      t = docx_text(os.path.join(D, 'scene_report.docx')).lower()
+      assert 'bus' in t and ('people' in t or 'person' in t or 'man' in t or 'pedestrian' in t), t[:300]
+      assert len(t.split()) >= 30, 'description too short'
+      assert docx_images(os.path.join(D, 'scene_report.docx')) >= 1, 'photo not embedded'
+      assert any(e['type'] == 'tool_call' and e['data'].get('tool') in ('vision_ask', 'look_at_screen') and e['data'].get('verified') for e in events), 'vision model not used'
+    timeout_s: 900
+
+  - id: hard_09_live_webcam_report
+    category: workflow_hard
+    workflow: true
+    requires: camera
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h9'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "Take a photo with the webcam, identify the objects in it, save the object counts to webcam_objects.xlsx in ~/Desktop/seguro_wf_eval/h9, then make a painting-style portrait of the person in front of the camera and save it there as portrait.png."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h9')
+      rows = xlsx_rows(os.path.join(D, 'webcam_objects.xlsx')); assert len(rows) >= 2, rows
+      from PIL import Image; Image.open(os.path.join(D, 'portrait.png')).verify()
+      assert any(e['type'] == 'tool_call' and e['data'].get('tool') == 'webcam_capture' and e['data'].get('verified') for e in events) or \
+             any(e['type'] == 'tool_call' and e['data'].get('tool') in ('webcam_detect_objects', 'portrait_create') for e in events), 'webcam not used'
+    timeout_s: 900
+
+  - id: hard_10_news_deep_dive
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h10'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "Find the 3 latest news articles about robotics, read the full text of the first article, and write robotics_brief.docx in ~/Desktop/seguro_wf_eval/h10 with the three headlines, their sources and links, and a 5-sentence summary of the first article."
+    check: |
+      t = docx_text(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h10/robotics_brief.docx'))
+      assert t.count('http') >= 3, f'{t.count("http")} links'
+      assert len(t.split()) >= 80, 'brief too short'
+    timeout_s: 900
+
+  - id: hard_11_dedupe_folder
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h11'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      blobs = [os.urandom(random.randint(200, 3000)) for _ in range(5)]
+      ORIG, DUPES = [], []
+      for i, b in enumerate(blobs):
+          n = f'file_{i}.bin'; ORIG.append(n)
+          with open(os.path.join(D, n), 'wb') as f: f.write(b)
+      for i in (0, 2, 4):
+          n = f'copy_of_file_{i}.bin'; DUPES.append(n)
+          with open(os.path.join(D, n), 'wb') as f: f.write(blobs[i])
+    prompt: "In ~/Desktop/seguro_wf_eval/h11 find files that are exact duplicates of each other (same content, compare SHA-256 hashes), keep the file_N.bin originals, move every duplicate copy into a subfolder named duplicates, and write duplicates_report.xlsx in h11 listing each duplicate, its original and the hash."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h11')
+      assert sorted(os.listdir(os.path.join(D, 'duplicates'))) == sorted(DUPES), os.listdir(os.path.join(D, 'duplicates'))
+      assert all(os.path.exists(os.path.join(D, n)) for n in ORIG), 'an original was moved'
+      flat = ' '.join(str(c) for r in xlsx_rows(os.path.join(D, 'duplicates_report.xlsx')) for c in r)
+      assert all(n in flat for n in DUPES), 'report misses duplicates'
+    timeout_s: 900
+
+  - id: hard_12_clean_csv
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h12'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      rows = [(f'  Customer {i} ', random.choice(['pune', 'PUNE', 'Mumbai ', 'mumbai']), random.randint(1, 99)) for i in range(20)]
+      rows += [rows[3], rows[7]]                       # 2 exact duplicate rows
+      rows += [('Customer 99', '', 5)]                 # missing city
+      with open(os.path.join(D, 'customers_raw.csv'), 'w') as f:
+          f.write('name,city,orders\n' + '\n'.join(f'{a},{b},{c}' for a, b, c in rows))
+      CLEAN = {(a.strip(), b.strip().title()) for a, b, c in rows if b.strip()}
+    prompt: "Clean customers_raw.csv in ~/Desktop/seguro_wf_eval/h12: trim spaces in names and cities, write city names in Title Case, remove exact duplicate rows and rows with a missing city, and save the result as customers_clean.csv in that folder."
+    check: |
+      import csv
+      rows = list(csv.DictReader(open(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h12/customers_clean.csv'))))
+      got = {(r['name'], r['city']) for r in rows}
+      assert len(rows) == len(CLEAN) and got == CLEAN, f'{len(rows)} rows; diff {list(got ^ CLEAN)[:4]}'
+    timeout_s: 900
+
+  - id: hard_13_local_api_to_excel
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random, json as _j
+      D = os.path.expanduser(r'~/SeguroProjects/seguro_wf_api'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      PRODUCTS = [{'sku': f'SKU-{i}', 'name': f'Item {i}', 'stock': random.randint(0, 60)} for i in range(12)]
+      with open(os.path.join(D, 'products.json'), 'w') as f: f.write(_j.dumps(PRODUCTS))
+      LOW = sorted(p['sku'] for p in PRODUCTS if p['stock'] < 10)
+      E = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h13'); shutil.rmtree(E, ignore_errors=True); os.makedirs(E)
+    prompt: "Serve the folder ~/SeguroProjects/seguro_wf_api over HTTP on port 5077 (python -m http.server), fetch http://127.0.0.1:5077/products.json from that local server, and save every product with stock below 10 to low_stock.xlsx in ~/Desktop/seguro_wf_eval/h13 with columns sku, name and stock. Stop the server afterwards."
+    check: |
+      rows = xlsx_rows(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h13/low_stock.xlsx'))
+      got = sorted(str(r[0]) for r in rows[1:])
+      assert got == LOW, f'{got} != {LOW}'
+      assert any(e['type'] == 'tool_call' and e['data'].get('tool') == 'process_start' and e['data'].get('verified') for e in events), 'server never started'
+    timeout_s: 900
+
+  - id: hard_14_code_with_tests
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/SeguroProjects/seguro_wf_code'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "In ~/SeguroProjects/seguro_wf_code write a Python module textstats.py with a function word_frequencies(text) that returns a dict of lowercase word counts ignoring punctuation, write test_textstats.py with at least 3 pytest tests for it, run pytest in that folder, and save the pytest output to test_results.txt there."
+    check: |
+      import subprocess, sys
+      D = os.path.expanduser(r'~/SeguroProjects/seguro_wf_code')
+      r = subprocess.run([sys.executable, '-c', "import textstats as t; d=t.word_frequencies('The cat, the CAT! a dog.'); assert d['the']==2 and d['cat']==2 and d['dog']==1, d"], cwd=D, capture_output=True, text=True)
+      assert r.returncode == 0, r.stderr[-400:]
+      out = open(os.path.join(D, 'test_results.txt')).read()
+      assert 'passed' in out and 'failed' not in out, out[-300:]
+      r2 = subprocess.run([sys.executable, '-m', 'pytest', '-q'], cwd=D, capture_output=True, text=True)
+      assert r2.returncode == 0, 'tests do not pass when re-run'
+    timeout_s: 900
+
+  - id: hard_15_largest_files
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h15'); shutil.rmtree(D, ignore_errors=True)
+      SIZES = {}
+      for sub in ('a', 'b/c', 'd'):
+          os.makedirs(os.path.join(D, 'tree', sub), exist_ok=True)
+          for k in range(4):
+              n = os.path.join('tree', sub, f'f{k}.dat'); s = random.randint(1000, 900000); SIZES[os.path.basename(sub) + '/' + f'f{k}.dat'] = s
+              with open(os.path.join(D, n), 'wb') as f: f.write(b'\0' * s)
+      TOP5 = sorted(SIZES.values(), reverse=True)[:5]
+    prompt: "Find the 5 largest files anywhere inside ~/Desktop/seguro_wf_eval/h15/tree (including subfolders) and save them to largest.xlsx in ~/Desktop/seguro_wf_eval/h15 with columns path and size_bytes, sorted from largest to smallest."
+    check: |
+      rows = xlsx_rows(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h15/largest.xlsx'))
+      sizes = [int(float(r[1])) for r in rows[1:6]]
+      assert sizes == TOP5, f'{sizes} != {TOP5}'
+    timeout_s: 900
+
+  - id: hard_16_markdown_to_doc_and_deck
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h16'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      HEADS = ['Problem', 'Approach', 'Results', 'Next Steps']
+      with open(os.path.join(D, 'notes.md'), 'w') as f:
+          f.write('\n\n'.join(f'## {h}\n{h} details: ' + ' '.join(['point'] * 12) for h in HEADS))
+    prompt: "Turn notes.md in ~/Desktop/seguro_wf_eval/h16 into a Word document notes.docx with one section per heading, and into a PowerPoint notes_deck.pptx in the same folder with one slide per heading (heading as the slide title, its text on the slide)."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h16')
+      t = docx_text(os.path.join(D, 'notes.docx'))
+      assert all(h in t for h in HEADS), 'docx misses headings'
+      slides, _ = pptx_info(os.path.join(D, 'notes_deck.pptx'))
+      assert slides == len(HEADS), f'{slides} slides for {len(HEADS)} headings'
+    timeout_s: 900
+
+  - id: hard_17_system_profile
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, ctypes
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h17'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      u = ctypes.windll.user32; u.SetProcessDPIAware(); RES = f'{u.GetSystemMetrics(0)}x{u.GetSystemMetrics(1)}'
+      import platform; HOST = platform.node()
+    prompt: "Build a system profile of this PC using PowerShell: computer name, Windows version, screen resolution, total RAM in GB and GPU name. Save it as system_profile.docx in ~/Desktop/seguro_wf_eval/h17."
+    check: |
+      t = docx_text(os.path.expanduser(r'~/Desktop/seguro_wf_eval/h17/system_profile.docx')).replace(' ', '')
+      assert HOST.lower() in t.lower(), f'computer name {HOST} missing'
+      assert RES.replace('x', '') in t.replace('x', '').replace('×', '').replace('by', ''), f'resolution {RES} missing'
+      assert 'rtx' in t.lower() or 'nvidia' in t.lower(), 'GPU missing'
+    timeout_s: 900
+
+  - id: hard_18_archive_and_verify
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h18'); shutil.rmtree(D, ignore_errors=True); os.makedirs(os.path.join(D, 'project'))
+      FILES = {}
+      for i in range(6):
+          n = f'part{i}.txt'; FILES[n] = 'x' * random.randint(10, 500)
+          with open(os.path.join(D, 'project', n), 'w') as f: f.write(FILES[n])
+    prompt: "Compress the folder ~/Desktop/seguro_wf_eval/h18/project into project_backup.zip in ~/Desktop/seguro_wf_eval/h18, then verify the archive by listing its contents and file sizes into archive_manifest.txt in the same folder."
+    check: |
+      import zipfile
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h18')
+      with zipfile.ZipFile(os.path.join(D, 'project_backup.zip')) as z:
+          names = {os.path.basename(n): z.read(n).decode() for n in z.namelist() if not n.endswith('/')}
+      assert names == FILES, f'zip has {sorted(names)}'
+      m = open(os.path.join(D, 'archive_manifest.txt')).read()
+      assert all(n in m for n in FILES), 'manifest incomplete'
+    timeout_s: 900

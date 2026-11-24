@@ -1,0 +1,166 @@
+# WORKFLOW EVAL TASKS (8): multi-app, run through the workflow engine.
+# Checkers are hand-written and independent of the planner's own success criteria.
+# {UPPERCASE} names in prompts are filled from the task's setup globals (e.g. random nonces).
+tasks:
+  - id: wf_01_news_report_gmail
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w1'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      TAG = f'[Seguro eval] AI news {random.randint(10000, 99999)}'
+    prompt: "Find the 5 latest AI news articles. Put their title, source and summary in an Excel file ai_news.xlsx in the folder ~/Desktop/seguro_wf_eval/w1, make a bar chart image of articles per source, write a Word report ai_news_report.docx in the same folder with the article titles and the chart, then create a Gmail draft to seguro-eval@example.com with the subject '{TAG}' and the Word report attached. Do not send it."
+    check: |
+      x = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w1/ai_news.xlsx'); d = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w1/ai_news_report.docx')
+      rows = xlsx_rows(x); assert len(rows) >= 6, f'xlsx rows {len(rows)}'
+      titles = [str(r[0]) for r in rows[1:] if r and r[0]]
+      assert len(titles) >= 5 and all(r[1] for r in rows[1:6]), rows[:3]
+      text = docx_text(d).lower(); hits = sum(1 for t in titles[:5] if t.lower()[:40] in text)
+      assert hits >= 3, f'only {hits}/5 titles in report'
+      assert docx_images(d) >= 1, 'no chart image in report'
+      assert gmail_draft(TAG, with_attachment=True), 'no Gmail draft with attachment'
+    timeout_s: 900
+
+  - id: wf_02_sort_downloads
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Downloads/seguro_wf_sort'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      FILES = {'report.pdf': b'%PDF-1.4 test', 'photo.jpg': b'\xff\xd8\xff test', 'notes.txt': b'hello', 'todo.txt': b'x', 'data.csv': b'a,b\n1,2'}
+      for n, b in FILES.items():
+          with open(os.path.join(D, n), 'wb') as f: f.write(b)
+    prompt: "Go through the folder seguro_wf_sort in my Downloads, sort the files into subfolders by file type (one subfolder per extension, e.g. pdf, jpg, txt, csv), then make a summary table in Excel sort_summary.xlsx in that same folder with columns File, From and To showing what moved where."
+    check: |
+      D = os.path.expanduser(r'~/Downloads/seguro_wf_sort')
+      loose = [f for f in os.listdir(D) if os.path.isfile(os.path.join(D, f)) and f != 'sort_summary.xlsx']
+      assert not loose, f'files not sorted: {loose}'
+      for name in FILES:
+          ext = name.rsplit('.', 1)[1]
+          hits = [sd for sd in os.listdir(D) if os.path.isdir(os.path.join(D, sd)) and ext in sd.lower() and os.path.exists(os.path.join(D, sd, name))]
+          assert hits, f'{name} not in a {ext} folder'
+      rows = xlsx_rows(os.path.join(D, 'sort_summary.xlsx'))
+      assert len(rows) - 1 == len(FILES), f'summary has {len(rows) - 1} rows for {len(FILES)} files'
+      flat = ' '.join(str(c) for r in rows for c in r)
+      assert all(n in flat for n in FILES), 'summary misses files'
+    cleanup: "import shutil; shutil.rmtree(os.path.expanduser(r'~/Downloads/seguro_wf_sort'), ignore_errors=True)"
+    timeout_s: 600
+
+  - id: wf_03_flask_notes_pptx
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/SeguroProjects/seguro_wf_notes'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "In the folder ~/SeguroProjects/seguro_wf_notes build a small Flask notes app (app.py) on port 5055 with one page that lists notes and has a form to add a note; store notes in notes.json in that folder. Run it, open it in the browser, add the notes alpha, beta and gamma through the page, take a screenshot of the page, and put the screenshot on a single slide in notes_demo.pptx in that folder."
+    check: |
+      D = os.path.expanduser(r'~/SeguroProjects/seguro_wf_notes')
+      notes = json.load(open(os.path.join(D, 'notes.json')))
+      flat = json.dumps(notes).lower()
+      assert all(w in flat for w in ('alpha', 'beta', 'gamma')), f'notes.json: {flat[:200]}'
+      slides, pics = pptx_info(os.path.join(D, 'notes_demo.pptx'))
+      assert slides == 1 and pics >= 1, f'pptx slides={slides} pictures={pics}'
+    timeout_s: 900
+
+  - id: wf_04_csv_chart_report
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w4'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      VALS = {c: random.randint(100, 999) for c in ['Books', 'Games', 'Music', 'Toys', 'Tools']}
+      TOP = max(VALS, key=VALS.get)
+      with open(os.path.join(D, 'sales.csv'), 'w') as f:
+          f.write('Category,Sales\n' + '\n'.join(f'{c},{v}' for c, v in VALS.items()))
+    prompt: "Read sales.csv in ~/Desktop/seguro_wf_eval/w4, create sales.xlsx in the same folder with the data and a bar chart, make a PNG chart of sales by category, and write sales_summary.docx in that folder that names the category with the highest sales and embeds the chart image."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w4')
+      rows = xlsx_rows(os.path.join(D, 'sales.xlsx')); assert len(rows) >= 6, rows
+      assert xlsx_charts(os.path.join(D, 'sales.xlsx')) >= 1, 'no chart in xlsx'
+      vals = {str(r[0]): r[1] for r in rows[1:]}
+      assert all(str(vals.get(c)) in (str(v), f'{v}.0') for c, v in VALS.items()), f'xlsx values {vals} != {VALS}'
+      text = docx_text(os.path.join(D, 'sales_summary.docx'))
+      assert TOP in text, f'top category {TOP} not named'
+      assert docx_images(os.path.join(D, 'sales_summary.docx')) >= 1, 'no image in docx'
+    timeout_s: 600
+
+  - id: wf_05_system_report_pptx
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w5'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "Collect free disk space per drive and the top 5 processes by memory using PowerShell, save them to system_report.xlsx in ~/Desktop/seguro_wf_eval/w5 with two sheets named Disk and Processes, make a PNG bar chart of the top processes' memory, and create system_report.pptx in that folder with 2 slides: one summarising disk space and one with the process chart."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w5'); x = os.path.join(D, 'system_report.xlsx')
+      sheets = xlsx_sheets(x); names = [s.lower() for s in sheets]
+      assert 'disk' in names and 'processes' in names, names
+      disk = xlsx_rows(x, sheets[names.index('disk')]); procs = xlsx_rows(x, sheets[names.index('processes')])
+      assert len(disk) >= 2 and len(procs) >= 6, f'disk {len(disk)} rows, processes {len(procs)} rows'
+      slides, pics = pptx_info(os.path.join(D, 'system_report.pptx'))
+      assert slides == 2 and pics >= 1, f'slides={slides} pictures={pics}'
+    timeout_s: 600
+
+  - id: wf_06_web_titles
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w6'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      NONCES = [f'Page {random.randint(100000, 999999)}' for _ in range(3)]
+      for i, n in enumerate(NONCES, 1):
+          with open(os.path.join(D, f'page{i}.html'), 'w') as f:
+              f.write(f'<html><head><title>{n}</title></head><body>page {i}</body></html>')
+    prompt: "Open page1.html, page2.html and page3.html from ~/Desktop/seguro_wf_eval/w6 in the browser and read each page's title. Put the file names and titles in titles.xlsx in that folder, then write titles.docx there listing the three titles."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w6')
+      flat = ' '.join(str(c) for r in xlsx_rows(os.path.join(D, 'titles.xlsx')) for c in r)
+      assert all(n in flat for n in NONCES), f'xlsx missing titles {NONCES}: {flat[:200]}'
+      text = docx_text(os.path.join(D, 'titles.docx'))
+      assert all(n in text for n in NONCES), 'docx missing titles'
+    timeout_s: 600
+
+  - id: wf_07_wordcount_gmail
+    category: workflow
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w7'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      words = 'alpha beta gamma delta epsilon zeta eta theta'.split()
+      COUNTS = {}
+      for i in range(1, 4):
+          n = random.randint(20, 120); COUNTS[f'doc{i}.txt'] = n
+          with open(os.path.join(D, f'doc{i}.txt'), 'w') as f:
+              f.write(' '.join(random.choice(words) for _ in range(n)))
+      TAG = f'[Seguro eval] word counts {random.randint(10000, 99999)}'
+    prompt: "Count the words in each .txt file in ~/Desktop/seguro_wf_eval/w7 using Python, save the results to word_counts.xlsx in that folder with columns File and Words and a bar chart, then create a Gmail draft to seguro-eval@example.com with the subject '{TAG}' and word_counts.xlsx attached. Do not send it."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w7')
+      rows = xlsx_rows(os.path.join(D, 'word_counts.xlsx'))
+      got = {str(r[0]).strip(): r[1] for r in rows[1:]}
+      assert all(str(got.get(f)).split('.')[0] == str(n) for f, n in COUNTS.items()), f'counts {got} != {COUNTS}'
+      assert gmail_draft(TAG, with_attachment=True), 'no Gmail draft with attachment'
+    timeout_s: 600
+
+  - id: wf_08_kill_and_resume
+    category: workflow
+    workflow: true
+    kill_after_verified: 1
+    setup: |
+      import shutil
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w8'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+    prompt: "In ~/Desktop/seguro_wf_eval/w8: write and run a Python script that saves the squares of 1 to 10 to squares.json, then create squares.xlsx from that data with columns n and square and a bar chart, then write squares.docx stating the sum of the squares."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/w8')
+      assert run.status == 'done', run.report
+      flat = json.dumps(json.load(open(os.path.join(D, 'squares.json'))))
+      assert '100' in flat and '81' in flat, flat[:200]
+      rows = xlsx_rows(os.path.join(D, 'squares.xlsx')); assert len(rows) >= 11, rows[:3]
+      assert '385' in docx_text(os.path.join(D, 'squares.docx')), 'sum 385 missing'
+      starts = {}
+      for e in events:
+          if e['type'] == 'node_started': starts[e['node_id']] = starts.get(e['node_id'], 0) + 1
+      first = [e['node_id'] for e in events if e['type'] == 'node_verified'][0]
+      assert starts[first] == 1, f'node {first} verified before the kill ran again after resume'
+      assert any(e['type'] == 'workflow_started' and e['data'].get('resumed') for e in events), 'no resume happened'
+    timeout_s: 900

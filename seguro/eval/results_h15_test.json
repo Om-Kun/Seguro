@@ -1,0 +1,51 @@
+[
+  {
+    "id": "hard_15_largest_files",
+    "category": "workflow_hard",
+    "prompt": "Find the 5 largest files anywhere inside ~/Desktop/seguro_wf_eval/h15/tree (including subfolders) and save them to largest.xlsx in ~/Desktop/seguro_wf_eval/h15 with columns path and size_bytes, sorted from largest to smallest.",
+    "status": "FAIL",
+    "agent_status": "failed",
+    "evidence": "0/3 steps verified. failed: find_largest_files: Checks failed after 2 attempt(s):. skipped because an earlier step failed: sort_files_by_size, create_excel_file.",
+    "error": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\omsal/Desktop/seguro_wf_eval/h15/largest.xlsx'",
+    "elapsed_s": 64.04,
+    "steps": 21,
+    "rungs": [
+      "files_list",
+      "files_find",
+      "files_list",
+      "files_find",
+      "files_list",
+      "files_find",
+      "files_list",
+      "files_find",
+      "files_list",
+      "files_find",
+      "files_list",
+      "files_find",
+      "run_powershell",
+      "files_list",
+      "run_powershell",
+      "files_find",
+      "run_powershell",
+      "run_powershell",
+      "node_output",
+      "files_write",
+      "node_output"
+    ],
+    "workflow_id": "wf_20261016_074630_c3cb",
+    "resumed_from": null,
+    "plan_source": "planner",
+    "plan_fallback": false,
+    "nodes": 3,
+    "nodes_verified": 0,
+    "replans": 0,
+    "escalated_nodes": 1,
+    "node_times_s": {
+      "find_largest_files": 41.2
+    },
+    "confirmations": 0,
+    "run": 1,
+    "mode": "hybrid",
+    "timestamp": "2026-10-16 07:47:21"
+  }
+]

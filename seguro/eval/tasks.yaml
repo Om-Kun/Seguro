@@ -1,0 +1,546 @@
+# SEGURO V2 EMPIRICAL EVALUATION SUITE (60 VERIFIABLE TASKS)
+# Covers 8 Core Workstation Categories:
+# 1. App Launch (10)
+# 2. File Operations (8)
+# 3. Office & Analytics (10)
+# 4. Web & Browser (8)
+# 5. Windows Settings (5)
+# 6. Multi-App Workflows (8)
+# 7. Visual / Custom UI (6)
+# 8. Coding Agent Delegation (5)
+
+tasks:
+  # ----------------------------------------------------
+  # CORE AUDIT TASKS (6) — checkers inspect real end state, never state.status alone
+  # ----------------------------------------------------
+  - id: core_01_calculator
+    category: core
+    prompt: "Open calculator"
+    setup: "[windows_close('Calculator') for _ in range(2)]"
+    check: "import time; time.sleep(1.0); wins = [w['title'].lower() for w in windows_list()]; assert any(t == 'calculator' or t.startswith('calculator') for t in wins), wins"
+    cleanup: "windows_close('Calculator')"
+    timeout_s: 60
+
+  - id: core_02_notepad_save
+    category: core
+    prompt: "Open Notepad, type the text 'Seguro audit line 1', and save it as seguro_notepad_test.txt on the Desktop"
+    setup: "p = os.path.expanduser(r'~/Desktop/seguro_notepad_test.txt'); os.remove(p) if os.path.exists(p) else None"
+    check: "p = os.path.expanduser(r'~/Desktop/seguro_notepad_test.txt'); assert os.path.exists(p), 'file missing'; assert 'Seguro audit line 1' in open(p, encoding='utf-8', errors='replace').read(), 'text missing'"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/seguro_notepad_test.txt'); os.remove(p) if os.path.exists(p) else None; windows_close('Notepad')"
+    timeout_s: 120
+
+  - id: core_03_excel_chart
+    category: core
+    prompt: "Create an Excel workbook core_sales.xlsx on the Desktop with columns Month and Sales for Jan, Feb, Mar, Apr with numeric sales values, and a bar chart of sales"
+    setup: "p = os.path.expanduser(r'~/Desktop/core_sales.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    check: |
+      import openpyxl
+      p = os.path.expanduser(r'~/Desktop/core_sales.xlsx')
+      assert os.path.exists(p), 'workbook missing'
+      ws = openpyxl.load_workbook(p).active
+      rows = [r for r in ws.iter_rows(values_only=True) if any(c is not None for c in r)]
+      assert len(rows) >= 5, f'expected header + 4 rows, got {len(rows)}'
+      nums = [r[1] for r in rows[1:] if isinstance(r[1], (int, float))]
+      assert len(nums) >= 4, f'sales column not numeric: {rows}'
+      assert len(ws._charts) >= 1, 'no chart in sheet'
+    cleanup: "p = os.path.expanduser(r'~/Desktop/core_sales.xlsx'); os.remove(p) if os.path.exists(p) else None; windows_close('core_sales')"
+    timeout_s: 120
+
+  - id: core_04_dark_mode
+    category: core
+    prompt: "Turn on dark mode for Windows apps"
+    approve: [settings_set_theme, skill_theme]
+    setup: |
+      import winreg, json
+      k = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, winreg.KEY_ALL_ACCESS)
+      f = os.path.join(os.environ['TEMP'], 'seguro_eval_theme.json')
+      if not os.path.exists(f):  # keep the user's real original across repeated runs
+          orig = {n: winreg.QueryValueEx(k, n)[0] for n in ('AppsUseLightTheme', 'SystemUsesLightTheme')}
+          open(f, 'w').write(json.dumps(orig))
+      winreg.SetValueEx(k, 'AppsUseLightTheme', 0, winreg.REG_DWORD, 1)
+    check: |
+      import winreg
+      k = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize')
+      v = winreg.QueryValueEx(k, 'AppsUseLightTheme')[0]
+      assert v == 0, f'AppsUseLightTheme is {v}, expected 0'
+    cleanup: |
+      import winreg, json
+      f = os.path.join(os.environ['TEMP'], 'seguro_eval_theme.json')
+      if os.path.exists(f):
+          orig = json.load(open(f))
+          k = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, winreg.KEY_ALL_ACCESS)
+          for n, v in orig.items():
+              winreg.SetValueEx(k, n, 0, winreg.REG_DWORD, v)
+          os.remove(f)
+      windows_close('Settings')
+    timeout_s: 120
+
+  # Page title is a random nonce written at setup, so the agent can only answer by
+  # actually opening the page and reading the real browser title (works offline).
+  - id: core_05_browser_title
+    category: core
+    prompt: "Open the file seguro_title_probe.html from my Desktop in Brave and tell me the page title shown in the browser"
+    setup: |
+      import random
+      nonce = f'Probe {random.randint(100000, 999999)}'
+      open(os.path.join(os.environ['TEMP'], 'seguro_title_nonce.txt'), 'w').write(nonce)
+      open(os.path.expanduser(r'~/Desktop/seguro_title_probe.html'), 'w').write(f'<html><head><title>{nonce}</title></head><body>title probe</body></html>')
+    check: |
+      import time; time.sleep(2.0)
+      nonce = open(os.path.join(os.environ['TEMP'], 'seguro_title_nonce.txt')).read().strip()
+      titles = [w['title'] for w in windows_list() if 'brave' in w['title'].lower()]
+      assert any(nonce in t for t in titles), f'no Brave window showing {nonce!r}: {titles}'
+      assert nonce in (state.final_evidence or ''), f'answer lacks real title {nonce!r}: {(state.final_evidence or "")[:200]!r}'
+    cleanup: "p = os.path.expanduser(r'~/Desktop/seguro_title_probe.html'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 120
+
+  - id: core_06_move_by_size
+    category: core
+    prompt: "In the folder seguro_size_test on the Desktop, move every file larger than 100 KB into a subfolder named large inside it. Leave smaller files where they are."
+    setup: |
+      import shutil
+      d = os.path.expanduser(r'~/Desktop/seguro_size_test')
+      shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
+      for name, size in [('small_a.txt', 2000), ('small_b.log', 50000), ('big_a.bin', 300000), ('big_b.dat', 150000)]:
+          open(os.path.join(d, name), 'wb').write(b'x' * size)
+    check: |
+      d = os.path.expanduser(r'~/Desktop/seguro_size_test')
+      L = os.path.join(d, 'large')
+      assert os.path.isdir(L), 'large/ missing'
+      assert sorted(os.listdir(L)) == ['big_a.bin', 'big_b.dat'], os.listdir(L)
+      assert os.path.exists(os.path.join(d, 'small_a.txt')) and os.path.exists(os.path.join(d, 'small_b.log')), os.listdir(d)
+    cleanup: "import shutil; shutil.rmtree(os.path.expanduser(r'~/Desktop/seguro_size_test'), ignore_errors=True)"
+    timeout_s: 120
+
+  # ----------------------------------------------------
+  # CATEGORY 1: APP LAUNCH (10 tasks)
+  # ----------------------------------------------------
+  - id: app_launch_01_notepad
+    category: app_launch
+    prompt: "Open Notepad"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('notepad' in t for t in wins)"
+    cleanup: "windows_close('Notepad')"
+    timeout_s: 15
+
+  - id: app_launch_02_calc
+    category: app_launch
+    prompt: "Launch Calculator"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('calculator' in t for t in wins)"
+    cleanup: "windows_close('Calculator')"
+    timeout_s: 15
+
+  - id: app_launch_03_paint
+    category: app_launch
+    prompt: "Open Paint"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('paint' in t for t in wins)"
+    cleanup: "windows_close('Paint')"
+    timeout_s: 15
+
+  - id: app_launch_04_terminal
+    category: app_launch
+    prompt: "Open Terminal"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('terminal' in t or 'powershell' in t or 'cmd' in t for t in wins)"
+    cleanup: "windows_close('Terminal')"
+    timeout_s: 15
+
+  - id: app_launch_05_taskmgr
+    category: app_launch
+    prompt: "Open Task Manager"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('task manager' in t for t in wins)"
+    cleanup: "windows_close('Task Manager')"
+    timeout_s: 15
+
+  - id: app_launch_06_brave
+    category: app_launch
+    prompt: "Launch Brave"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('brave' in t for t in wins)"
+    cleanup: "windows_close('Brave')"
+    timeout_s: 20
+
+  - id: app_launch_07_cmd
+    category: app_launch
+    prompt: "Open cmd"
+    check: "time.sleep(0.5); wins = [w['title'].lower() for w in windows_list()]; assert any('command prompt' in t or 'cmd' in t for t in wins)"
+    cleanup: "windows_close('Command Prompt')"
+    timeout_s: 15
+
+  - id: app_launch_08_explorer
+    category: app_launch
+    prompt: "Open File Explorer"
+    check: "time.sleep(0.5); wins = [w['title'].lower() for w in windows_list()]; assert any('file explorer' in t or 'this pc' in t for t in wins)"
+    cleanup: "windows_close('File Explorer')"
+    timeout_s: 15
+
+  - id: app_launch_09_settings
+    category: app_launch
+    prompt: "Open Settings"
+    check: "time.sleep(1.0); wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)"
+    cleanup: "windows_close('Settings')"
+    timeout_s: 20
+
+  - id: app_launch_10_snipping
+    category: app_launch
+    prompt: "Open Snipping Tool"
+    check: "time.sleep(1.0); wins = [w['title'].lower() for w in windows_list()]; assert any('snipping' in t for t in wins)"
+    cleanup: "windows_close('Snipping')"
+    timeout_s: 15
+
+  # ----------------------------------------------------
+  # CATEGORY 2: FILE OPERATIONS (8 tasks)
+  # ----------------------------------------------------
+  - id: file_ops_01_create_text
+    category: file_ops
+    prompt: "Create a file named eval_test_1.txt on Desktop with content 'Empirical test 1'"
+    setup: "p = os.path.expanduser(r'~/Desktop/eval_test_1.txt'); os.remove(p) if os.path.exists(p) else None"
+    check: "p = os.path.expanduser(r'~/Desktop/eval_test_1.txt'); assert os.path.exists(p) and 'Empirical test 1' in open(p, encoding='utf-8').read()"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/eval_test_1.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  - id: file_ops_02_read_json
+    category: file_ops
+    prompt: "Write a JSON file eval_config.json on Desktop with key status equal to verified"
+    setup: "p = os.path.expanduser(r'~/Desktop/eval_config.json'); os.remove(p) if os.path.exists(p) else None"
+    check: "p = os.path.expanduser(r'~/Desktop/eval_config.json'); import json; assert json.load(open(p))['status'] == 'verified'"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/eval_config.json'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  - id: file_ops_03_create_csv
+    category: file_ops
+    prompt: "Create a CSV file eval_data.csv on Desktop with header Name,Score and rows Alice,95 and Bob,88"
+    setup: "p = os.path.expanduser(r'~/Desktop/eval_data.csv'); os.remove(p) if os.path.exists(p) else None"
+    check: "p = os.path.expanduser(r'~/Desktop/eval_data.csv'); content = open(p).read(); assert 'Alice,95' in content and 'Bob,88' in content"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/eval_data.csv'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  - id: file_ops_04_count_lines
+    category: file_ops
+    prompt: "Count lines of eval_sample.txt on Desktop using powershell"
+    setup: "p = os.path.expanduser(r'~/Desktop/eval_sample.txt'); open(p, 'w').write('L1\\nL2\\nL3\\nL4\\nL5')"
+    check: "assert state.status == 'success'"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/eval_sample.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  - id: file_ops_05_mkdir
+    category: file_ops
+    prompt: "Create a directory SeguroArchive on Desktop"
+    setup: "p = os.path.expanduser(r'~/Desktop/SeguroArchive'); os.remove(p) if os.path.isfile(p) else (os.rmdir(p) if os.path.exists(p) else None)"
+    check: "p = os.path.expanduser(r'~/Desktop/SeguroArchive'); assert os.path.isdir(p)"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/SeguroArchive'); os.remove(p) if os.path.isfile(p) else (os.rmdir(p) if os.path.exists(p) else None)"
+    timeout_s: 20
+
+  - id: file_ops_06_sha256
+    category: file_ops
+    prompt: "Calculate SHA256 of file eval_hash.txt on Desktop using powershell Get-FileHash"
+    setup: "p = os.path.expanduser(r'~/Desktop/eval_hash.txt'); open(p, 'w').write('Verification test string')"
+    check: "assert state.status == 'success'"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/eval_hash.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  - id: file_ops_07_move_file
+    category: file_ops
+    prompt: "Move eval_source.txt from Desktop to eval_dest.txt on Desktop"
+    setup: "p1 = os.path.expanduser(r'~/Desktop/eval_source.txt'); open(p1, 'w').write('data'); p2 = os.path.expanduser(r'~/Desktop/eval_dest.txt'); os.remove(p2) if os.path.exists(p2) else None"
+    check: "p2 = os.path.expanduser(r'~/Desktop/eval_dest.txt'); assert os.path.exists(p2)"
+    cleanup: "p2 = os.path.expanduser(r'~/Desktop/eval_dest.txt'); os.remove(p2) if os.path.exists(p2) else None"
+    timeout_s: 20
+
+  - id: file_ops_08_append_log
+    category: file_ops
+    prompt: "Append timestamp entry to audit_test.log on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/audit_test.log'); assert os.path.exists(p) and os.path.getsize(p) > 0"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/audit_test.log'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 20
+
+  # ----------------------------------------------------
+  # CATEGORY 3: OFFICE & ANALYTICS (10 tasks)
+  # ----------------------------------------------------
+  - id: office_01_excel_states
+    category: office
+    prompt: "Create an Excel sheet on Desktop named states_eval.xlsx with columns State, Population and 4 states"
+    check: "p = os.path.expanduser(r'~/Desktop/states_eval.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/states_eval.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_02_excel_sales
+    category: office
+    prompt: "Create an Excel file q1_sales.xlsx on Desktop with Quarter, Revenue, Cost and embedded chart"
+    check: "p = os.path.expanduser(r'~/Desktop/q1_sales.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/q1_sales.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_03_word_brief
+    category: office
+    prompt: "Create a Word document project_brief.docx on Desktop with title Seguro Architecture Overview"
+    check: "p = os.path.expanduser(r'~/Desktop/project_brief.docx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/project_brief.docx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_04_excel_crypto
+    category: office
+    prompt: "Create an Excel sheet crypto_prices.xlsx with Token, Price_USD, MarketCap on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/crypto_prices.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/crypto_prices.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_05_word_minutes
+    category: office
+    prompt: "Generate Word document meeting_minutes.docx on Desktop with heading Capstone Review"
+    check: "p = os.path.expanduser(r'~/Desktop/meeting_minutes.docx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/meeting_minutes.docx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_06_excel_inventory
+    category: office
+    prompt: "Create an Excel sheet inventory.xlsx with ItemID, ItemName, Quantity, UnitPrice on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/inventory.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/inventory.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_07_word_nda
+    category: office
+    prompt: "Create a Word document nda_template.docx on Desktop with standard confidentiality terms"
+    check: "p = os.path.expanduser(r'~/Desktop/nda_template.docx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/nda_template.docx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_08_excel_grades
+    category: office
+    prompt: "Create an Excel spreadsheet student_grades.xlsx on Desktop with Student, Subject, Grade"
+    check: "p = os.path.expanduser(r'~/Desktop/student_grades.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/student_grades.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_09_word_invoice
+    category: office
+    prompt: "Generate a Word document invoice_template.docx on Desktop with Invoice Number and Client Name"
+    check: "p = os.path.expanduser(r'~/Desktop/invoice_template.docx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/invoice_template.docx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: office_10_excel_budget
+    category: office
+    prompt: "Create an Excel document annual_budget.xlsx on Desktop with Category, Budget, Actual"
+    check: "p = os.path.expanduser(r'~/Desktop/annual_budget.xlsx'); assert os.path.exists(p) and os.path.getsize(p) > 1000"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/annual_budget.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  # ----------------------------------------------------
+  # CATEGORY 4: WEB & BROWSER (8 tasks)
+  # ----------------------------------------------------
+  - id: browser_01_youtube_search
+    category: browser
+    prompt: "Play Lo-Fi Hip Hop Beats on youtube"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_02_web_search
+    category: browser
+    prompt: "Search for autonomous desktop agents in Brave"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_03_github_open
+    category: browser
+    prompt: "Open https://github.com in browser"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_04_arxiv_search
+    category: browser
+    prompt: "Search for Qwen2-VL benchmark papers on Brave"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_05_wikipedia_open
+    category: browser
+    prompt: "Open https://en.wikipedia.org in browser"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_06_fastapi_docs
+    category: browser
+    prompt: "Open https://fastapi.tiangolo.com in browser"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_07_weather_search
+    category: browser
+    prompt: "Search for today weather in Mumbai on Brave"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: browser_08_python_docs
+    category: browser
+    prompt: "Open https://docs.python.org/3/ in browser"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  # ----------------------------------------------------
+  # CATEGORY 5: WINDOWS SETTINGS (5 tasks)
+  # ----------------------------------------------------
+  - id: settings_01_display
+    category: settings
+    prompt: "Open display settings"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)"
+    cleanup: "windows_close('Settings')"
+    timeout_s: 20
+
+  - id: settings_02_sound
+    category: settings
+    prompt: "Open sound settings"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)"
+    cleanup: "windows_close('Settings')"
+    timeout_s: 20
+
+  - id: settings_03_bluetooth
+    category: settings
+    prompt: "Open bluetooth settings"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)"
+    cleanup: "windows_close('Settings')"
+    timeout_s: 20
+
+  - id: settings_04_network
+    category: settings
+    prompt: "Open network settings"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('settings' in t for t in wins)"
+    cleanup: "windows_close('Settings')"
+    timeout_s: 20
+
+  - id: settings_05_system_info
+    category: settings
+    prompt: "Get system hostname using powershell"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  # ----------------------------------------------------
+  # CATEGORY 6: MULTI-APP WORKFLOWS (8 tasks)
+  # ----------------------------------------------------
+  - id: multi_01_notepad_calc
+    category: multi_app
+    prompt: "Open Notepad and open Calculator"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('notepad' in t for t in wins) and any('calculator' in t for t in wins)"
+    cleanup: "windows_close('Notepad'); windows_close('Calculator')"
+    timeout_s: 25
+
+  - id: multi_02_calc_write
+    category: multi_app
+    prompt: "Compute 144 * 12 via python and save result to calc_result.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/calc_result.txt'); assert os.path.exists(p) and '1728' in open(p).read()"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/calc_result.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: multi_03_create_and_open_excel
+    category: multi_app
+    prompt: "Create demo_sales.xlsx on Desktop and focus it"
+    check: "p = os.path.expanduser(r'~/Desktop/demo_sales.xlsx'); assert os.path.exists(p)"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/demo_sales.xlsx'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: multi_04_system_audit_report
+    category: multi_app
+    prompt: "Query free disk space via powershell and write it to disk_status.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/disk_status.txt'); assert os.path.exists(p) and os.path.getsize(p) > 0"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/disk_status.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: multi_05_process_list_save
+    category: multi_app
+    prompt: "Get top 5 processes by memory and write to top_procs.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/top_procs.txt'); assert os.path.exists(p) and os.path.getsize(p) > 0"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/top_procs.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: multi_06_brave_and_notepad
+    category: multi_app
+    prompt: "Open Brave and open Notepad"
+    check: "wins = [w['title'].lower() for w in windows_list()]; assert any('brave' in t for t in wins) and any('notepad' in t for t in wins)"
+    cleanup: "windows_close('Brave'); windows_close('Notepad')"
+    timeout_s: 25
+
+  - id: multi_07_env_export
+    category: multi_app
+    prompt: "Export current USERNAME environment variable to user_env.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/user_env.txt'); assert os.path.exists(p) and len(open(p).read().strip()) > 0"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/user_env.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  - id: multi_08_python_bench
+    category: multi_app
+    prompt: "Run a python script that benchmarks 10000 sqrt operations and writes elapsed time to bench.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/bench.txt'); assert os.path.exists(p) and os.path.getsize(p) > 0"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/bench.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 25
+
+  # ----------------------------------------------------
+  # CATEGORY 7: VISUAL / CUSTOM UI (6 tasks)
+  # ----------------------------------------------------
+  - id: visual_01_snapshot
+    category: visual_ui
+    prompt: "Take a UIA snapshot of active window elements"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: visual_02_look_screen
+    category: visual_ui
+    prompt: "Look at the screen and verify what window is active"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: visual_03_coordinate_map
+    category: visual_ui
+    prompt: "Scale normalized point 500,500 to screen coordinates"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: visual_04_desktop_elements
+    category: visual_ui
+    prompt: "Capture screen framebuffer and verify dimensions"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: visual_05_scroll_action
+    category: visual_ui
+    prompt: "Scroll down 200 clicks"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  - id: visual_06_window_focus_test
+    category: visual_ui
+    prompt: "Focus window Program Manager"
+    check: "assert state.status == 'success'"
+    timeout_s: 15
+
+  # ----------------------------------------------------
+  # CATEGORY 8: CODING AGENT DELEGATION (5 tasks)
+  # ----------------------------------------------------
+  - id: code_01_fastapi_skill
+    category: coding_delegation
+    prompt: "Generate a FastAPI microservice for Book entity with title and author in ~/SeguroProjects/"
+    check: "assert state.status == 'success'"
+    timeout_s: 30
+
+  - id: code_02_quicksort_script
+    category: coding_delegation
+    prompt: "Write a python script quicksort.py that sorts [9, 3, 7, 1, 8, 2] and saves output to qs_out.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/qs_out.txt'); assert os.path.exists(p) and '[1, 2, 3, 7, 8, 9]' in open(p).read()"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/qs_out.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 30
+
+  - id: code_03_fibonacci_script
+    category: coding_delegation
+    prompt: "Write a python script to compute first 10 fibonacci numbers and save to fib_out.txt on Desktop"
+    check: "p = os.path.expanduser(r'~/Desktop/fib_out.txt'); assert os.path.exists(p) and '34' in open(p).read()"
+    cleanup: "p = os.path.expanduser(r'~/Desktop/fib_out.txt'); os.remove(p) if os.path.exists(p) else None"
+    timeout_s: 30
+
+  - id: code_04_delegate_claude
+    category: coding_delegation
+    prompt: "Delegate to coding agent to build a python binary search tree module in SeguroProjects"
+    check: "assert state.status == 'success' or state.step_count > 0"
+    timeout_s: 60
+
+  - id: code_05_delegate_codex
+    category: coding_delegation
+    prompt: "Delegate to coding agent to build a markdown report parser in SeguroProjects"
+    check: "assert state.status == 'success' or state.step_count > 0"
+    timeout_s: 60

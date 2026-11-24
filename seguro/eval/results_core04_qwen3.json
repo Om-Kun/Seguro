@@ -1,0 +1,38 @@
+[
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Windows is now in dark mode | 1 checks passed in 0.5s: registry",
+    "error": null,
+    "elapsed_s": 0.47,
+    "steps": 1,
+    "rungs": [
+      "skill_theme"
+    ],
+    "run": 1,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:11:08"
+  },
+  {
+    "id": "core_04_dark_mode",
+    "category": "core",
+    "prompt": "Turn on dark mode for Windows apps",
+    "status": "PASS",
+    "agent_status": "success",
+    "check_is_self_report": false,
+    "evidence": "Windows is now in dark mode | 1 checks passed in 0.3s: registry",
+    "error": null,
+    "elapsed_s": 0.33,
+    "steps": 1,
+    "rungs": [
+      "skill_theme"
+    ],
+    "run": 2,
+    "mode": "local_only",
+    "timestamp": "2026-10-16 02:11:09"
+  }
+]

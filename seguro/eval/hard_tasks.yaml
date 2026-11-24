@@ -1,0 +1,98 @@
+# HARD WORKFLOWS modelled on dataset/seguro_11k_os_workflows.jsonl ("hard" difficulty).
+# None of the 5,000 hard records use apps installed here (all are enterprise SaaS), and their
+# trajectories are synthetic, so they cannot be replayed. Each task below keeps the instruction's
+# intent with local data and a checker that recomputes the right answer from the fixtures.
+tasks:
+  - id: hard_01_migrate_verify      # template of SGR-WF-C7F77CFC (978 records)
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random, csv
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h1'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      random.seed()
+      ROWS = [{'id': i, 'name': f'user{i:03d}', 'email': f'user{i:03d}@corp.example', 'plan': random.choice(['free', 'pro', 'team'])} for i in range(1, 51)]
+      with open(os.path.join(D, 'users_legacy.csv'), 'w', newline='') as f:
+          w = csv.DictWriter(f, fieldnames=['id', 'name', 'email', 'plan']); w.writeheader(); w.writerows(ROWS)
+      import hashlib
+      SHA = hashlib.sha256(open(os.path.join(D, 'users_legacy.csv'), 'rb').read()).hexdigest()
+    prompt: "Migrate the user data from the legacy export users_legacy.csv in ~/Desktop/seguro_wf_eval/h1 into a new system file users.json (a JSON list of user objects) in the same folder, then verify data integrity: write integrity_report.docx in that folder stating the number of users in the CSV and in the JSON, and the SHA-256 checksum of users_legacy.csv."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h1')
+      users = json.load(open(os.path.join(D, 'users.json')))
+      assert isinstance(users, list) and len(users) == 50, f'users.json has {len(users) if isinstance(users, list) else type(users)} entries'
+      emails = {str(u.get('email')) for u in users}
+      assert all(r['email'] in emails for r in ROWS), 'emails lost in migration'
+      text = docx_text(os.path.join(D, 'integrity_report.docx'))
+      assert '50' in text, 'user count missing'
+      assert SHA in text.lower(), f'real SHA-256 {SHA[:12]}... missing from report'
+    timeout_s: 900
+
+  - id: hard_02_invoice_crossref    # template of SGR-WF-8A59834F (961 records)
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random, csv
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h2'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      ids = [f'INV-{1000 + i}' for i in range(30)]
+      sales = {i: round(random.uniform(100, 5000), 2) for i in ids}
+      erp = dict(sales)
+      MISMATCH = sorted(random.sample(ids, 4))
+      for i in MISMATCH: erp[i] = round(erp[i] + random.choice([-1, 1]) * random.uniform(5, 300), 2)
+      for name, data in (('invoices_crm.csv', sales), ('invoices_erp.csv', erp)):
+          with open(os.path.join(D, name), 'w', newline='') as f:
+              w = csv.writer(f); w.writerow(['invoice_id', 'amount']); w.writerows(sorted(data.items()))
+    prompt: "Cross-reference the invoice records in invoices_crm.csv with invoices_erp.csv in ~/Desktop/seguro_wf_eval/h2. Create mismatches.xlsx in that folder listing every invoice whose amount differs, with columns invoice_id, crm_amount, erp_amount, difference and status, where status is 'Approved for review'."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h2')
+      rows = xlsx_rows(os.path.join(D, 'mismatches.xlsx'))
+      got = sorted(str(r[0]).strip() for r in rows[1:] if r and r[0])
+      assert got == MISMATCH, f'listed {got}, real mismatches {MISMATCH}'
+      assert all('approved' in ' '.join(str(c) for c in r).lower() for r in rows[1:]), 'status missing'
+    timeout_s: 900
+
+  - id: hard_03_q3_reconciliation   # template of SGR-WF-AD38B815 (1,046 records)
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random, csv
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h3'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      MONTHS = ['2026-07', '2026-08', '2026-09']
+      LEDGER = {'ledger_quickbooks.csv': [], 'ledger_salesforce.csv': []}
+      for name in LEDGER:
+          for m in MONTHS:
+              for k in range(random.randint(4, 8)):
+                  LEDGER[name].append((f'{m}-{random.randint(10, 28)}', round(random.uniform(50, 900), 2)))
+          with open(os.path.join(D, name), 'w', newline='') as f:
+              w = csv.writer(f); w.writerow(['date', 'amount']); w.writerows(LEDGER[name])
+      TOT = {n: round(sum(a for _, a in rows), 2) for n, rows in LEDGER.items()}
+      DIFF = round(abs(TOT['ledger_quickbooks.csv'] - TOT['ledger_salesforce.csv']), 2)
+    prompt: "Generate a Q3 financial reconciliation report bridging ledger_quickbooks.csv and ledger_salesforce.csv in ~/Desktop/seguro_wf_eval/h3: create reconciliation.xlsx in that folder with the monthly totals (July, August, September 2026) of both ledgers, then write reconciliation_report.docx there stating each ledger's Q3 total and the absolute difference between them, rounded to 2 decimals."
+    check: |
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h3')
+      assert len(xlsx_rows(os.path.join(D, 'reconciliation.xlsx'))) >= 4, 'monthly table missing'
+      text = docx_text(os.path.join(D, 'reconciliation_report.docx')).replace(',', '')
+      for n, t in TOT.items():
+          assert f'{t:.2f}' in text, f'{n} total {t:.2f} missing'
+      assert f'{DIFF:.2f}' in text, f'difference {DIFF:.2f} missing'
+    timeout_s: 900
+
+  - id: hard_04_compliance_logs     # template of SGR-WF-A6E67F9E (991 records)
+    category: workflow_hard
+    workflow: true
+    setup: |
+      import shutil, random
+      D = os.path.expanduser(r'~/Desktop/seguro_wf_eval/h4'); shutil.rmtree(D, ignore_errors=True); os.makedirs(D)
+      U = os.path.expanduser(r'~/SeguroProjects/uploads'); shutil.rmtree(U, ignore_errors=True)
+      levels = ['INFO'] * 6 + ['WARN'] * 2 + ['ERROR']
+      LINES = [f'2026-10-15 1{i % 10}:{i % 60:02d}:00 {random.choice(levels)} service=auth msg=event_{i}' for i in range(200)]
+      FLAGGED = sum(1 for l in LINES if ' WARN ' in l or ' ERROR ' in l)
+      with open(os.path.join(D, 'auth_service.log'), 'w') as f: f.write('\n'.join(LINES))
+    prompt: "Audit the compliance log auth_service.log in ~/Desktop/seguro_wf_eval/h4: export every WARN and ERROR entry to compliance_findings.csv in that folder with columns timestamp, level and message, then upload the CSV by copying it into the folder ~/SeguroProjects/uploads."
+    check: |
+      import csv
+      for d in (r'~/Desktop/seguro_wf_eval/h4', r'~/SeguroProjects/uploads'):
+          p = os.path.join(os.path.expanduser(d), 'compliance_findings.csv')
+          rows = list(csv.reader(open(p)))
+          assert len(rows) - 1 == FLAGGED, f'{p}: {len(rows) - 1} findings, expected {FLAGGED}'
+          assert all(('WARN' in ' '.join(r) or 'ERROR' in ' '.join(r)) for r in rows[1:]), 'non-finding rows exported'
+    timeout_s: 900

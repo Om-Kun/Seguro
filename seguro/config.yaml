@@ -1,0 +1,67 @@
+mode: hybrid            # local_only | hybrid
+llm:
+  brain:
+    provider: local
+    base_url: "http://127.0.0.1:11434/v1"
+    # qwen3:8b, num_ctx 16384 (ollama/seguro-brain-qwen3.Modelfile). Previous: seguro-brain:latest (Llama 3.1 + LoRA)
+    model: "seguro-brain-qwen3:latest"
+    reasoning_effort: "none"     # no hidden thinking: ~4 s per tool call instead of ~34 s
+    temperature: 0.2
+    max_tokens: 1024
+    timeout_s: 120
+  grounder:
+    provider: local
+    base_url: "http://127.0.0.1:11434/v1"
+    model: "seguro-brain:latest"
+    temperature: 0.0
+  vision:                       # local vision-language model for webcam/screen questions
+    provider: openai_compat
+    base_url: "http://127.0.0.1:11434/v1"
+    model: "qwen2.5vl:7b"
+    timeout_s: 180
+  # Hybrid-mode escalation brain (any OpenAI-compatible endpoint). Only used in hybrid mode;
+  # actions still run locally, prompts and tool results leave the PC.
+  # Default: Ollama Cloud through the local daemon (run `ollama signin` once; free tier has
+  # session/weekly limits). Groq alternative:
+  #   base_url: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile", api_key_env: GROQ_API_KEY
+  escalation:
+    enabled: true
+    provider: openai_compat
+    base_url: "http://127.0.0.1:11434/v1"
+    model: "gpt-oss:120b-cloud"
+    timeout_s: 120
+  cloud_planner:
+    provider: anthropic
+    model: "claude-3-5-sonnet-20241022"
+    api_key_env: ANTHROPIC_API_KEY
+  cloud_cua:
+    provider: anthropic
+    model: "claude-3-5-sonnet-20241022"
+    tool_version: "computer_20241022"
+    max_steps: 30
+delegates:
+  order: [claude, gemini, codex]
+  timeout_s: 360
+  workdir_root: "~/SeguroProjects"
+workflow:
+  root: "~/SeguroProjects/workflows"   # inside the safety allow-list so nodes can write artifacts
+  max_parallel: 3
+  max_replans: 3
+  node_max_steps: 12
+limits:
+  max_steps: 25
+  escalate_after_failures: 2
+  session_cloud_budget_usd: 2.0
+voice:
+  stt_model: "large-v3-turbo"
+  ptt_key: "f9"
+  tts: "sapi"
+safety:
+  killswitch_key: "f12"
+  confirm_timeout_s: 15
+  allowed_roots: ["~/Desktop", "~/Documents", "~/Downloads", "~/SeguroProjects"]
+display:
+  dpi_awareness: 2
+  screenshot_max_side: 1280
+ui:
+  exclude_from_capture: true   # hide Seguro's windows from screen capture (OBS/recorders won't see them either)

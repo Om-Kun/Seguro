@@ -1,0 +1,10 @@
+[
+  {
+    "n": 25,
+    "title": "Draw a portrait in Paint",
+    "ok": true,
+    "seconds": 27.6,
+    "needs": "hands off the mouse ~15 s",
+    "evidence": "Drew 311 strokes in Paint in 18.5s | 2 checks passed in 27.6s: paint_portrait.png, drawing_has_lines"
+  }
+]
